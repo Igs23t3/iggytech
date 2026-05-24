@@ -1,0 +1,13 @@
+{
+  "itemGroup.iggytechmod": "Example Mod Tab",
+  "block.iggytechmod.example_block": "Example Block",
+  "item.iggytechmod.example_item": "Example Item",
+
+  "iggytechmod.configuration.title": "iggytechmod Configs",
+  "iggytechmod.configuration.section.iggytechmod.common.toml": "iggytechmod Configs",
+  "iggytechmod.configuration.section.iggytechmod.common.toml.title": "iggytechmod Configs",
+  "iggytechmod.configuration.items": "Item List",
+  "iggytechmod.configuration.logDirtBlock": "Log Dirt Block",
+  "iggytechmod.configuration.magicNumberIntroduction": "Magic Number Text",
+  "iggytechmod.configuration.magicNumber": "Magic Number"
+}
