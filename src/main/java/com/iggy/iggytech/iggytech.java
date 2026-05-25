@@ -1,6 +1,7 @@
 package com.iggy.iggytech;
 
 import com.iggy.iggytech.Blocks.ConveyorBeltBlock;
+import com.iggy.iggytech.Blocks.entities.ModBlockEntities;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -46,6 +47,7 @@ public class iggytech {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
+        ModBlockEntities.register(modEventBus);
     }
 }
 
