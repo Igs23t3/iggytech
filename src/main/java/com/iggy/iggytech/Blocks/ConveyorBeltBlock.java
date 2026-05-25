@@ -4,6 +4,7 @@ import com.iggy.iggytech.Blocks.entities.ConveyorBeltBlockEntity;
 import com.iggy.iggytech.Blocks.entities.ModBlockEntities;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -68,5 +69,10 @@ public class ConveyorBeltBlock extends BaseEntityBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return createTickerHelper(type, ModBlockEntities.CONVEYOR_BELT_BE.get(),
                 (lvl, pos, blockState, be) -> be.tick(lvl, pos, blockState));
+    }
+
+    @Override
+    public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
+        super.stepOn(level, pos, state, entity);
     }
 }
