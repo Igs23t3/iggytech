@@ -1,9 +1,18 @@
 package com.iggy.iggytech;
 
 import com.iggy.iggytech.Blocks.ConveyorBeltBlock;
+import com.iggy.iggytech.Blocks.entities.ConveyorBeltBlockEntity;
 import com.iggy.iggytech.Blocks.entities.ModBlockEntities;
+import com.iggy.iggytech.Blocks.entities.renderer.ConveyorBeltBlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -48,6 +57,19 @@ public class iggytech {
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
         ModBlockEntities.register(modEventBus);
+       // BlockEntityRenderers.register(ModBlockEntities.CONVEYOR_BELT_BE.get(), ConveyorBeltBlockEntityRenderer::new);
+    }
+
+    @EventBusSubscriber(modid = "iggytech", value = Dist.CLIENT)
+    public class ClientEvents {
+        static {
+            LOGGER.info("ClientEvents class loaded");
+        }
+        @SubscribeEvent
+        public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+            LOGGER.info("registerRenderers fired");
+            event.registerBlockEntityRenderer(ModBlockEntities.CONVEYOR_BELT_BE.get(), ConveyorBeltBlockEntityRenderer::new);
+        }
     }
 }
 

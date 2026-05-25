@@ -4,7 +4,10 @@ import com.iggy.iggytech.Blocks.entities.ConveyorBeltBlockEntity;
 import com.iggy.iggytech.Blocks.entities.ModBlockEntities;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -18,6 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
@@ -72,7 +76,17 @@ public class ConveyorBeltBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
-        super.stepOn(level, pos, state, entity);
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        if (level.isClientSide) return InteractionResult.SUCCESS;
+
+        if (level.getBlockEntity(pos) instanceof ConveyorBeltBlockEntity be) {
+            ItemStack stack = be.inventory.getStackInSlot(0);
+            if (!stack.isEmpty()) {
+                player.addItem(stack.copy());
+                be.clearSlot();
+            }
+        }
+
+        return InteractionResult.CONSUME;
     }
 }

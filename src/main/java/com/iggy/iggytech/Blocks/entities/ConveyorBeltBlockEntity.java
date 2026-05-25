@@ -1,9 +1,13 @@
 package com.iggy.iggytech.Blocks.entities;
 
+import com.iggy.iggytech.Blocks.ConveyorBeltBlock;
 import com.iggy.iggytech.iggytech;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -30,11 +34,33 @@ public class ConveyorBeltBlockEntity extends BlockEntity {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
-            if (!level.isClientSide()){
+            if (level != null && !level.isClientSide()) {
+                iggytech.LOGGER.info("sending block update");
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
             }
         }
     };
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag, registries);
+        return tag;
+    }
+
+
+    @Override
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider registries) {
+        iggytech.LOGGER.info("onDataPacket called");
+        if (pkt.getTag() != null) {
+            loadAdditional(pkt.getTag(), registries);
+        }
+    }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
@@ -66,25 +92,35 @@ public class ConveyorBeltBlockEntity extends BlockEntity {
 
     public void tick(Level level, BlockPos pos, BlockState state) {
         if (level.isClientSide) return;
+        if (level.getGameTime() % 2 != 0) return;
 
-        if (!inventory.getStackInSlot(0).isEmpty()) return; // belt is full, don't bother
-
-        AABB area = new AABB(
-                pos.getX(),           // min X
-                pos.getY() + 3/16.0, // min Y (top of belt surface)
-                pos.getZ(),           // min Z
-                pos.getX() + 1,       // max X
-                pos.getY() + 4/16.0,       // max Y (generous headroom)
-                pos.getZ() + 1        // max Z
-        );
-        List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, area,
-                entity -> !entity.isRemoved()); // only alive entities
-
-        if (items.isEmpty()) return;
-
-        ItemEntity item = items.get(0); // just grab the first one
-        if (tryInsertItem(item.getItem())) {
-            item.discard();
+        // try to pick up items if empty
+        if (inventory.getStackInSlot(0).isEmpty()) {
+            AABB area = new AABB(pos).inflate(0.5, 1, 0.5).move(0, 0.5, 0);
+            List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, area,
+                    entity -> !entity.isRemoved());
+            if (items.isEmpty()) return;
+            ItemEntity item = items.get(0);
+            if (tryInsertItem(item.getItem())) {
+                item.discard();
+            }
+            return;
         }
+
+        // every 20 ticks try to move item forward
+        if (level.getGameTime() % 20 != 0) return;
+
+        Direction facing = state.getValue(ConveyorBeltBlock.FACING);
+        BlockPos frontPos = pos.relative(facing);
+        BlockEntity frontBe = level.getBlockEntity(frontPos);
+
+        if (frontBe instanceof ConveyorBeltBlockEntity frontBelt) {
+            // try to insert into the next belt
+            if (frontBelt.tryInsertItem(inventory.getStackInSlot(0))) {
+                clearSlot();
+            }
+            // if full, just wait
+        }
+        // no belt in front, just wait
     }
 }
