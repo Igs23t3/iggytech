@@ -2,6 +2,7 @@ package com.iggy.iggytech.Blocks;
 
 import com.iggy.iggytech.Blocks.entities.ConveyorBeltBlockEntity;
 import com.iggy.iggytech.Blocks.entities.ModBlockEntities;
+import com.iggy.iggytech.common.ConveyorBeltSystem;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
@@ -88,5 +89,16 @@ public class ConveyorBeltBlock extends BaseEntityBlock {
         }
 
         return InteractionResult.CONSUME;
+    }
+
+    @Override
+    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        ConveyorBeltSystem.onBeltPlaced(level, pos, state);
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        ConveyorBeltSystem.onBeltRemoved(level, pos, state);
+        super.onRemove(state, level, pos, newState, movedByPiston);
     }
 }

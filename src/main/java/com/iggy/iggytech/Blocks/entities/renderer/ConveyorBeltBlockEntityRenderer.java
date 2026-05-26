@@ -41,10 +41,15 @@ public class ConveyorBeltBlockEntityRenderer implements BlockEntityRenderer<Conv
             default -> 0f;
         };
 
+        // global synchronized timer, 0.0 to 1.0 over 20 ticks
+        float time = (Minecraft.getInstance().level.getGameTime() % 20 + partialTick) / 20f;
+        if (time < 0.05f) return;
+
         pose.pushPose();
         pose.translate(0.5, 0.2, 0.5);
-        pose.mulPose(Axis.YP.rotationDegrees(yRot));  // align with belt direction
-        pose.mulPose(Axis.XP.rotationDegrees(90f));   // lay flat
+        pose.mulPose(Axis.YP.rotationDegrees(yRot));
+        pose.translate(0, 0, -time); // move along Z before rotating, facing handles direction
+        pose.mulPose(Axis.XP.rotationDegrees(90f));
         pose.scale(0.5f, 0.5f, 0.5f);
         Minecraft.getInstance().getItemRenderer().renderStatic(
                 stack, ItemDisplayContext.FIXED, packedLight, packedOverlay, pose, bufferSource, null, 0

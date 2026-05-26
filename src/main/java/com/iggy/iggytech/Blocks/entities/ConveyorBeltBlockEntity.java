@@ -106,21 +106,7 @@ public class ConveyorBeltBlockEntity extends BlockEntity {
             }
             return;
         }
-
-        // every 20 ticks try to move item forward
-        if (level.getGameTime() % 20 != 0) return;
-
-        Direction facing = state.getValue(ConveyorBeltBlock.FACING);
-        BlockPos frontPos = pos.relative(facing);
-        BlockEntity frontBe = level.getBlockEntity(frontPos);
-
-        if (frontBe instanceof ConveyorBeltBlockEntity frontBelt) {
-            // try to insert into the next belt
-            if (frontBelt.tryInsertItem(inventory.getStackInSlot(0))) {
-                clearSlot();
-            }
-            // if full, just wait
-        }
-        // no belt in front, just wait
     }
+
+
 }
